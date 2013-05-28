@@ -5,6 +5,4 @@ Usage
 -----
 
 $ cp server_conf.yml.skel server_conf.yml
-$ rackup config.ru
-
-
+$ rackup -p4567 -E production config.ru
