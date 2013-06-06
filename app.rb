@@ -24,7 +24,7 @@ get "/" do
 end
 
 get "/info/:file" do
-  f = params[:file].gsub("%252F", "/")
+  f = params[:file].gsub("／", "/") # Replace Chinese slash char.
   stat = File.stat(File.join(get_public_folder, f))
   {file: f, size: stat.size, atime: stat.atime, mtime: stat.mtime, ctime: stat.ctime}.to_json
 end
