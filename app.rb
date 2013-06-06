@@ -24,7 +24,12 @@ get "/" do
 end
 
 get "/info/:file" do
-  f = params[:file].gsub("%252F", "/")
+  f = params[:file]
+  if f =~ /%252F/  # Linux server
+    f.gsub!("%252F", "/")
+  else             # OS X server
+    f.gsub!("%2F", "/")
+  end
   stat = File.stat(File.join(get_public_folder, f))
   {file: f, size: stat.size, atime: stat.atime, mtime: stat.mtime, ctime: stat.ctime}.to_json
 end
