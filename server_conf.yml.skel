@@ -1,2 +1,3 @@
 ---
 public_folder: "/path/to/movie/files"
+torrents_folder: "/path/to/torrents/files"
