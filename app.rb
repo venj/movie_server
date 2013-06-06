@@ -24,6 +24,7 @@ get "/" do
 end
 
 get "/info/:file" do
-  stat = File.stat(File.join(get_public_folder, params[:file].gsub!("%2F", "/")))
+  f = params[:file].gsub("%2F", "/")
+  stat = File.stat(File.join(get_public_folder, f))
   {file: f, size: stat.size, atime: stat.atime, mtime: stat.mtime, ctime: stat.ctime}.to_json
 end
