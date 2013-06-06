@@ -11,11 +11,19 @@ end
 
 set :public_folder, get_public_folder
 
+before do
+  content_type 'text/json'
+end
+
 get "/" do
-  content_type 'application/json'
   movies = []
   cd get_public_folder do
     movies = Dir["**/*"].select { |f| ["mp4", "m4v"].include? f.split(".").last.downcase }.sort.to_json
   end
   movies
+end
+
+get "/info/:file" do
+  stat = File.stat(File.join(get_public_folder, params[:file].gsub!("%2F", "/")))
+  {file: f, size: stat.size, atime: stat.atime, mtime: stat.mtime, ctime: stat.ctime}.to_json
 end
