@@ -44,3 +44,9 @@ Now run:
 Just like normal rack app running on passenger, `cd` to `/webapps/movie_server`, then run
 
     $ touch tmp/restart.txt
+
+**Torrent feature**
+
+You may not use it. It is really personal. If you have my BitTorrent Sync secret for my torrents, you may want to use the torrents code. Or, you can ignore these junk code.
+
+Please do remember to put the torrents folder inside your download folder. Because, actually torrents folder should be in public folder.
