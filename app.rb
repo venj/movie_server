@@ -28,6 +28,10 @@ def torrent_with_pic(pic)
   end
 end
 
+def date_with_pic(pic)
+  pic.match(/(201\d_\d\d-\d\d?)-4/).to_a[1]
+end
+
 set :public_folder, get_public_folder
 
 before do
@@ -55,14 +59,15 @@ get "/info/:file" do
 end
 
 # Torrents related
-get "/torrents/:page" do
-  page = params[:page].to_i
-  return [] if page == 0
-  torrents = []
+get "/torrents" do
+  dates = []
   cd get_torrents_folder do
-    torrents = Dir["*.jpg"][0 * page ... TORRENT_BATCH * page]
+    Dir["**/*.jpg"].each do |p|
+      d = date_with_pic(p)
+      dates << d unless dates.index d
+    end
   end
-  return torrents.to_json
+  return dates.to_json
 end
 
 get "/search/:keyword" do

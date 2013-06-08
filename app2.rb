@@ -5,8 +5,6 @@ require "yaml"
 require "fileutils"
 include FileUtils
 
-TORRENT_BATCH = 25
-
 def get_torrents_folder
   YAML.load(open(File.join(File.dirname(__FILE__), 'server_conf.yml')).read)["torrents_folder"]
 end
@@ -28,20 +26,25 @@ def torrent_with_pic(pic)
   end
 end
 
+def date_with_pic(pic)
+  pic.match(/(201\d_\d\d-\d\d?)-4/).to_a[1]
+end
+
 set :public_folder, get_torrents_folder
 
 before do
   content_type 'text/json'
 end
 
-get "/torrents/:page" do
-  page = params[:page].to_i
-  return [] if page == 0
-  torrents = []
+get "/torrents" do
+  dates = []
   cd get_torrents_folder do
-    torrents = Dir["*.jpg"][0 * page ... TORRENT_BATCH * page]
+    Dir["**/*.jpg"].each do |p|
+      d = date_with_pic(p)
+      dates << d unless dates.index d
+    end
   end
-  return torrents.to_json
+  return dates.to_json
 end
 
 get "/search/:keyword" do
