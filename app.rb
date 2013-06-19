@@ -18,7 +18,7 @@ def torrent_with_pic(pic)
   if File.exists?(possible_tr_name)
     return possible_tr_name
   else
-    tr_base = pic_name.gsub(/(201\d_\d\d-\d\d?-\d)\./, '\1_')
+    tr_base = pic_name.gsub(/(201\d_\d\d-\d\d?-?\d?)\./, '\1_')
     tr_name = File.join(pic_dir, "#{tr_base}.torrent")
     if File.exists?(tr_name)
       return tr_name
@@ -29,7 +29,7 @@ def torrent_with_pic(pic)
 end
 
 def date_with_pic(pic)
-  pic.match(/(201\d_\d\d-\d\d?)-\d/).to_a[1]
+  pic.match(/(201\d_\d\d-\d\d?)/).to_a[1]
 end
 
 set :public_folder, get_public_folder
