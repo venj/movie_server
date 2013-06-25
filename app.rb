@@ -88,26 +88,32 @@ get "/search/:keyword" do
   return pics.to_json
 end
 
-get "/lx/:file" do
+get "/lx/:file/:async" do
   f = params[:file]
   if f =~ /%252F/  # Linux server
     f.gsub!("%252F", "/")
   else             # OS X server
     f.gsub!("%2F", "/")
   end
+  lx_command = get_lx_command
   cd get_torrents_folder do
-    puts %[/usr/local/bin/my lx add #{torrent_with_pic f}]
-    result = %x[/usr/local/bin/my lx add #{torrent_with_pic f}]
-    if result =~ /completed/
-      status = "completed"
-    elsif result =~ /waiting/
-      status = "waiting"
-    elsif result =~ /downloading/
-      status = "downloading"
-    else
-      status = "failed or unknown"
+    if params[:async] == "1"
+      fork {
+        exec "#{lx_command} add #{torrent_with_pic f}"
+      }
+      return {status: "done"}.to_json
+    elsif params[:async] == "0"
+      result = %x[#{lx_command} add #{torrent_with_pic f}]
+      if result =~ /completed/
+        status = "completed"
+      elsif result =~ /waiting/
+        status = "waiting"
+      elsif result =~ /downloading/
+        status = "downloading"
+      else
+        status = "failed or unknown"
+      end
+      return {status: status}.to_json
     end
-    return {status: status}.to_json
   end
 end
-
