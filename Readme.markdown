@@ -1,6 +1,11 @@
 Video server
 ============
 
+Note
+----
+
+Please do remember to update your `server_conf.yml` file according to `server_conf.yml.skel`.
+
 Usage
 -----
 
