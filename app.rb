@@ -11,6 +11,10 @@ def get_public_folder
   YAML.load(open(File.join(File.dirname(__FILE__), 'server_conf.yml')).read)["public_folder"]
 end
 
+def get_lx_command
+  YAML.load(open(File.join(File.dirname(__FILE__), 'server_conf.yml')).read)["lixian_command"]
+end
+
 alias :get_torrents_folder :get_public_folder
 
 def torrent_with_pic(pic)
