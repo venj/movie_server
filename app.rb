@@ -46,7 +46,7 @@ end
 get "/" do
   movies = []
   cd get_public_folder do
-    movies = Dir["**/*"].select { |f| ["mp4", "m4v"].include? f.split(".").last.downcase }.sort.to_json
+    movies = Dir["**/*"].select { |f| ["mp4", "m4v", "mov"].include? f.split(".").last.downcase }.sort.to_json
   end
   movies
 end
