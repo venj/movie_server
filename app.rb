@@ -12,11 +12,12 @@ end
 alias :get_torrents_folder :get_public_folder
 
 def torrent_with_pic(pic)
-  pic_name = File.basename(pic).split(".").first
+  pic_name = File.basename(pic, ".jpg")
   pic_dir = File.dirname(pic)
   tr_name_1 = File.join(pic_dir, "#{pic_name}.torrent")
   frags = pic.split("_");frags.pop
   tr_name_2 = "#{frags.join("_")}.torrent"
+  puts tr_name_1
   if File.exists?(tr_name_1)
     return tr_name_1
   elsif File.exists?(tr_name_2)
@@ -93,6 +94,7 @@ get "/lx/:file" do
     f.gsub!("%2F", "/")
   end
   cd get_torrents_folder do
+    puts %[/usr/local/bin/my lx add #{torrent_with_pic f}]
     result = %x[/usr/local/bin/my lx add #{torrent_with_pic f}]
     if result =~ /completed/
       status = "completed"

@@ -12,7 +12,7 @@ def get_torrents_folder
 end
 
 def torrent_with_pic(pic)
-  pic_name = File.basename(pic).split(".").first
+  pic_name = File.basename(pic, ".jpg")
   pic_dir = File.dirname(pic)
   tr_name_1 = File.join(pic_dir, "#{pic_name}.torrent")
   frags = pic.split("_");frags.pop
