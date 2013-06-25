@@ -50,3 +50,15 @@ Just like normal rack app running on passenger, `cd` to `/webapps/movie_server`,
 You may not use it. It is really personal. If you have my BitTorrent Sync secret for my torrents, you may want to use the torrents code. Or, you can ignore these junk code.
 
 Please do remember to put the torrents folder inside your download folder. Because, actually torrents folder should be in public folder.
+
+**Sort Torrent Date List**
+
+If you want to sort by default rule, please edit line 77 in app.rb (line 55 in app2.rb) in `get "/torrents"` function from:
+
+    return dates.sort { |x, y| (x.index("[") != y.index("[")) ? (x <=> y) * -1 : x <=> y }.reverse.to_json
+
+to
+
+    return dates.sort.reverse.to_json
+
+Then, you will get the default sort.
