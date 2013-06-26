@@ -4,6 +4,7 @@ require "rubygems"
 require "sinatra"
 require "json"
 require "yaml"
+require "shellwords"
 require "fileutils"
 include FileUtils
 
@@ -78,7 +79,7 @@ delete "/remove/:file" do
   end
   cd get_public_folder do
     if File.exists?(f)
-      %x[rm -f #{f}]
+      %x["rm -f #{f}".shellescape]
     end
   end
   {status: "done"}.to_json
