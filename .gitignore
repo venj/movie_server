@@ -1,2 +1,3 @@
 server_conf.yml
 tmp/*
+log/*
