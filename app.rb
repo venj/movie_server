@@ -69,6 +69,21 @@ get "/info/:file" do
   {file: f, size: stat.size, atime: stat.atime, mtime: stat.mtime, ctime: stat.ctime}.to_json
 end
 
+delete "/remove/:file" do
+  f = params[:file]
+  if f =~ /%252F/  # Linux server
+    f.gsub!("%252F", "/")
+  else             # OS X server
+    f.gsub!("%2F", "/")
+  end
+  cd get_public_folder do
+    if File.exists?(f)
+      %x[rm -f #{f}]
+    end
+  end
+  {status: "done"}.to_json
+end
+
 # Torrents related
 get "/torrents" do
   dates = []
