@@ -79,7 +79,7 @@ delete "/remove/:file" do
   end
   cd get_public_folder do
     if File.exists?(f)
-      %x["rm -f #{f}".shellescape]
+      %x[rm -f #{f.shellescape}]
     end
   end
   {status: "done"}.to_json
