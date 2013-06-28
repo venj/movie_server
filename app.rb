@@ -16,6 +16,10 @@ def get_lx_command
   YAML.load(open(File.join(File.dirname(__FILE__), 'server_conf.yml')).read)["lixian_command"]
 end
 
+def get_max_pic_size
+  YAML.load(open(File.join(File.dirname(__FILE__), 'server_conf.yml')).read)["max_pic_size"].to_i * 1024
+end
+
 alias :get_torrents_folder :get_public_folder
 
 def torrent_with_pic(pic)
@@ -102,8 +106,13 @@ end
 get "/search/:keyword" do
   keyword = params[:keyword]
   pics = []
+  max_pic_size = get_max_pic_size
   cd get_torrents_folder do
-    pics = Dir["**/*.jpg"].select { |f| f.index keyword }
+    pics = Dir["**/*"].select do |f|
+      if ["jpg", "gif", "png"].index(f.split(".").last.downcase)
+        (f.index(keyword) && (File.stat(f).size < max_pic_size))
+      end
+    end
   end
   return pics.to_json
 end
