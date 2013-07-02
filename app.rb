@@ -126,7 +126,7 @@ get "/search/:keyword" do
       end
     end
   end
-  return pics.to_json
+  return pics.sort.to_json
 end
 
 get "/lx/:file/:async" do
