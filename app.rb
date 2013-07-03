@@ -28,6 +28,11 @@ class AppConfig
   def relative_folders
     @vars["relative_folders"]
   end
+  
+  def default_sort?
+    @vars["default_sort_order"]
+  end
+  
 end
 
 def torrent_with_pic(pic)
@@ -112,7 +117,11 @@ get "/torrents" do
       datelist += Dir["**"].select {|f| f != "tu.rb" }.reverse
     end
   end
-  return datelist.sort { |x, y| (x.index("[") != y.index("[")) ? (x <=> y) * -1 : x <=> y }.reverse.to_json
+  if config.default_sort?
+    return datelist.sort.reverse.to_json
+  else
+    return datelist.sort { |x, y| (x.index("[") != y.index("[")) ? (x <=> y) * -1 : x <=> y }.reverse.to_json
+  end
 end
 
 get "/search/:keyword" do
