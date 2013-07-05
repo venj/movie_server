@@ -109,7 +109,7 @@ get "/torrents" do
   folders = config.relative_folders
   cd config.public_folder do
     cd folders[0] do
-      regex = /(\d{4}\/\d{2}-\d{1,2})(-\d\/)?$/
+      regex = /(\d{4}\/\d{2}-\d{1,2})(-\d)?\/1\/$/
       selected = open(".finished").readlines.to_a.select { |u| u.strip =~ regex }
       datelist = selected.map { |u| regex.match(u)[1].gsub("/", "_") }
     end
