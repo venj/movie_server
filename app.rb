@@ -84,8 +84,14 @@ get "/info/:file" do
   else             # OS X server
     f.gsub!("%2F", "/")
   end
-  stat = File.stat(File.join(config.public_folder, f))
-  {file: f, size: stat.size, atime: stat.atime, mtime: stat.mtime, ctime: stat.ctime}.to_json
+  cd config.public_folder do
+    if File.exists?(f)
+      stat = File.stat(File.join(config.public_folder, f))
+      return {file: f, size: stat.size, atime: stat.atime, mtime: stat.mtime, ctime: stat.ctime, exist: true}.to_json
+    else
+      return {exist: false}.to_json
+    end
+  end
 end
 
 delete "/remove/:file" do
