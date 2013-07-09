@@ -123,7 +123,7 @@ get "/torrents" do
       list = Dir["**"].select{ |f| f != "tu.rb" }.sort do |x, y|
         regex = /\[(\d{1,2})-(\d{1,2})\]/
         m = regex.match(x); n = regex.match(y)
-        (m[1].to_i <=> n[1].to_i || m[2].to_i <=> n[2].to_i)
+        (m[1].to_i != n[1].to_i) ? (m[1].to_i <=> n[1].to_i) : (m[2].to_i <=> n[2].to_i)
       end.reverse
       if config.default_sort?
         datelist = list + datelist
