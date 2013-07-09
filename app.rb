@@ -117,17 +117,22 @@ get "/torrents" do
     cd folders[0] do
       regex = /(\d{4}\/\d{2}-\d{1,2})(-\d)?\/1\/$/
       selected = open(".finished").readlines.to_a.select { |u| u.strip =~ regex }
-      datelist = selected.map { |u| regex.match(u)[1].gsub("/", "_") }
+      datelist = selected.map { |u| regex.match(u)[1].gsub("/", "_") }.sort.reverse
     end
     cd folders[1] do
-      datelist += Dir["**"].select {|f| f != "tu.rb" }.reverse
+      list = Dir["**"].sort do |x, y|
+        regex = /\[(\d{1,2})-(\d{1,2})\]/
+        m = regex.match(x); n = regex.match(y)
+        (m[1].to_i <=> n[1].to_i || m[2].to_i <=> n[2].to_i)
+      end.reverse
+      if config.default_sort?
+        datelist = list + datelist
+      else
+        datelist += list
+      end
     end
   end
-  if config.default_sort?
-    return datelist.sort.reverse.to_json
-  else
-    return datelist.sort { |x, y| (x.index("[") != y.index("[")) ? (x <=> y) * -1 : x <=> y }.reverse.to_json
-  end
+  return datelist.to_json
 end
 
 get "/search/:keyword" do
