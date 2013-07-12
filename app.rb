@@ -147,10 +147,7 @@ get "/search/:keyword" do
       end
     end
   end
-  return pics.sort do |x, y|
-    arr_x = x.split("_"), arr_y = y.split("_")
-    x[0] != y[0] ? x[0] <=> y[0] : x[1] <=> y[1]
-  end.to_json
+  return pics.sort.to_json
 end
 
 get "/lx/:file/:async" do
