@@ -5,6 +5,7 @@ require "sinatra"
 require "json"
 require "yaml"
 require "shellwords"
+require "date"
 require "fileutils"
 include FileUtils
 
@@ -121,9 +122,9 @@ get "/torrents" do
     end
     cd folders[1] do
       list = Dir["**"].select{ |f| f != "tu.rb" }.sort do |x, y|
-        regex = /\[(\d{1,2})-(\d{1,2})\]/
-        m = regex.match(x); n = regex.match(y)
-        (m[1].to_i != n[1].to_i) ? (m[1].to_i <=> n[1].to_i) : (m[2].to_i <=> n[2].to_i)
+        regex = /\[((\d{4}-)?\d{1,2}-\d{1,2})\]/
+        m = regex.match(x), n = regex.match(y)
+        Date.parse(m[1].to_s) <=> Date.parse(n[1].to_s)
       end.reverse
       if config.default_sort?
         datelist = list + datelist
