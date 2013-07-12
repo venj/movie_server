@@ -122,9 +122,9 @@ get "/torrents" do
     end
     cd folders[1] do
       list = Dir["**"].select{ |f| f != "tu.rb" }.sort do |x, y|
-        regex = /\[((\d{4}-)?\d{1,2}-\d{1,2})\]/
-        m = regex.match(x), n = regex.match(y)
-        Date.parse(m[1].to_s) <=> Date.parse(n[1].to_s)
+        dreg = /((\d{4}-)?\d{1,2}-\d{1,2})/
+        m = dreg.match(x), n = dreg.match(y)
+        Date.parse(m.to_s) <=> Date.parse(n.to_s)
       end.reverse
       if config.default_sort?
         datelist = list + datelist
