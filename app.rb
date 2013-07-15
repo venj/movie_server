@@ -121,9 +121,8 @@ get "/torrents" do
       datelist = selected.map { |u| regex.match(u)[1].gsub("/", "_") }.sort.reverse
     end
     cd folders[1] do
-      dreg = /((\d{4}-)?\d{1,2}-\d{1,2})/
       list = Dir["**"].select{ |f| f != "tu.rb" }.sort_by do |x|
-        m = dreg.match(x).to_s.split("-")
+        m = x[1...x.index(']')].split("-")
         [m.length, *m.map{|a|a.to_i}]
       end.reverse
       if config.default_sort?
