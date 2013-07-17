@@ -34,27 +34,55 @@ class AppConfig
     @vars["default_sort_order"]
   end
   
+  def basic_auth_enabled?
+    @vars["enable_basic_auth"]
+  end
+  
+  def username
+    @vars["auth"][0]
+  end
+  
+  def password
+    @vars["auth"][1]
+  end
+  
 end
 
-def torrent_with_pic(pic)
-  pic_name = File.basename(pic, ".jpg")
-  pic_dir = File.dirname(pic)
-  tr_name_1 = File.join(pic_dir, "#{pic_name}.torrent")
-  frags = pic.split("_");frags.pop
-  tr_name_2 = "#{frags.join("_")}.torrent"
-  puts tr_name_1
-  if File.exists?(tr_name_1)
-    return tr_name_1
-  elsif File.exists?(tr_name_2)
-    return tr_name_2
-  else
-    tr_base = pic_name.gsub(/(201\d_\d\d-\d\d?-?\d?)\./, '\1_')
-    tr_name = File.join(pic_dir, "#{tr_base}.torrent")
-    if File.exists?(tr_name)
-      return tr_name
+config = AppConfig.new
+
+helpers do
+  def torrent_with_pic(pic)
+    pic_name = File.basename(pic, ".jpg")
+    pic_dir = File.dirname(pic)
+    tr_name_1 = File.join(pic_dir, "#{pic_name}.torrent")
+    frags = pic.split("_");frags.pop
+    tr_name_2 = "#{frags.join("_")}.torrent"
+    puts tr_name_1
+    if File.exists?(tr_name_1)
+      return tr_name_1
+    elsif File.exists?(tr_name_2)
+      return tr_name_2
     else
-      return nil
+      tr_base = pic_name.gsub(/(201\d_\d\d-\d\d?-?\d?)\./, '\1_')
+      tr_name = File.join(pic_dir, "#{tr_base}.torrent")
+      if File.exists?(tr_name)
+        return tr_name
+      else
+        return nil
+      end
     end
+  end
+  
+  def protected!
+    return if authorized?
+    headers['WWW-Authenticate'] = 'Basic realm="Restricted Area"'
+    halt 401, {status: "Not authorized"}.to_json
+  end
+
+  def authorized?
+    @auth ||=  Rack::Auth::Basic::Request.new(request.env)
+    config = AppConfig.new
+    @auth.provided? and @auth.basic? and @auth.credentials and @auth.credentials == [config.username, config.password]
   end
 end
 
@@ -62,12 +90,12 @@ def date_with_pic(pic)
   pic.match(/(201\d_\d\d-\d\d?)/).to_a[1] || pic.match(/(\[\d\-\d\d\]最新BT合集)/).to_a[1]
 end
 
+set :public_folder, config.public_folder
+
 before do
   content_type 'text/json'
+  protected! if config.basic_auth_enabled?
 end
-
-config = AppConfig.new
-set :public_folder, config.public_folder
 
 # Movie live cast
 get "/" do

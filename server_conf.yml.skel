@@ -6,3 +6,7 @@ relative_folders:
 lixian_command: "/path/to/lixian_cli.py"
 max_pic_size: 1024
 default_sort_order: true
+enable_basic_auth: false
+auth:
+    - admin
+    - admin
