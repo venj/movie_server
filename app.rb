@@ -170,17 +170,17 @@ get "/search/:keyword" do
   folders = config.relative_folders
   cd config.public_folder do
     if keyword.index("[")
-      cd folders[1] do
-        pics = Dir["**/*"].select do |f|
-          if ["jpg", "gif", "png", "bmp"].index(f.split(".").last.downcase)
-            (f.index(keyword) && (File.stat(f).size < max_pic_size))
+      cd File.join(folders[1], keyword) do
+        pics = Dir["*"].select do |f|
+          if ["jpg", "gif", "png", "bmp", "jpeg"].index(f.split(".").last.downcase)
+            File.stat(f).size < max_pic_size
           end
         end
-        pics.map!{ |x| File.join(folders[1], x) }
+        pics.map!{ |f| File.join(folders[1], keyword, f) }
       end
     else
       cd folders[0] do
-        pics = Dir["**/*#{keyword}*"].map{|x| File.join(folders[0], x)}
+        pics = Dir["**/*#{keyword}*"].select{ |f| ["jpg", "jpeg"].index(f.split(".").last.downcase) }.map{|f| File.join(folders[0], f)}
       end
     end
   end
