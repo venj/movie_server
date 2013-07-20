@@ -167,8 +167,10 @@ get "/search/:keyword" do
   keyword = params[:keyword]
   pics = []
   max_pic_size = config.max_pic_size
+  folders = config.relative_folders
   cd config.public_folder do
-    pics = Dir["**/*"].select do |f|
+    keyword.index("[") ? rule = "**/*" : rule = "**/*#{keyword}*"
+    pics = Dir[rule].select do |f|
       if ["jpg", "gif", "png"].index(f.split(".").last.downcase)
         (f.index(keyword) && (File.stat(f).size < max_pic_size))
       end
