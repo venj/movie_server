@@ -87,7 +87,7 @@ helpers do
 end
 
 def date_with_pic(pic)
-  pic.match(/(201\d_\d\d-\d\d?)/).to_a[1] || pic.match(/(\[\d\-\d\d\]最新BT合集)/).to_a[1]
+  pic.match(/(201\d_\d\d-\d\d?)/).to_a[1] || pic.match(/(\[\d\-\d\d\]最新BT合(集)?)/).to_a[1]
 end
 
 set :public_folder, config.public_folder
