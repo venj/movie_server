@@ -143,20 +143,24 @@ get "/torrents" do
   datelist = []
   folders = config.relative_folders
   cd config.public_folder do
-    cd folders[0] do
-      regex = /(\d{4}\/\d{2}-\d{1,2})(-\d)?\/1\/$/
-      selected = open(".finished").readlines.to_a.select { |u| u.strip =~ regex }
-      datelist = selected.map { |u| regex.match(u)[1].gsub("/", "_") }.sort.reverse
+    if File.exists?(folders[0])
+      cd folders[0] do
+        regex = /(\d{4}\/\d{2}-\d{1,2})(-\d)?\/1\/$/
+        selected = open(".finished").readlines.to_a.select { |u| u.strip =~ regex }
+        datelist = selected.map { |u| regex.match(u)[1].gsub("/", "_") }.sort.reverse
+      end
     end
-    cd folders[1] do
-      list = Dir["**"].select{ |f| !(["SyncArchive", "tu.rb"].include?(f)) }.sort_by do |x|
-        m = x[1...x.index(']')].split("-")
-        [m.length, *m.map{|a|a.to_i}]
-      end.reverse
-      if config.default_sort?
-        datelist = list + datelist
-      else
-        datelist += list
+    if File.exists?(folders[1])
+      cd folders[1] do
+        list = Dir["**"].select{ |f| !(["SyncArchive", "tu.rb"].include?(f)) }.sort_by do |x|
+          m = x[1...x.index(']')].split("-")
+          [m.length, *m.map{|a|a.to_i}]
+        end.reverse
+        if config.default_sort?
+          datelist = list + datelist
+        else
+          datelist += list
+        end
       end
     end
   end
