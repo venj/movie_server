@@ -12,3 +12,4 @@ require: []
 wait: 30
 servers: 1
 daemonize: true
+threaded: true
