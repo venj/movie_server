@@ -72,7 +72,16 @@ helpers do
       end
     end
   end
-  
+
+  def slash_process(file)
+    f = file
+    if f =~ /%252F/  # Linux server
+      f.gsub!("%252F", "/")
+    else             # OS X server
+      f.gsub!("%2F", "/")
+    end
+  end
+
   def protected!
     return if authorized?
     headers['WWW-Authenticate'] = 'Basic realm="Restricted Area"'
@@ -191,13 +200,17 @@ get "/search/:keyword" do
   return pics.sort.to_json
 end
 
-get "/lx/:file/:async" do
-  f = params[:file]
-  if f =~ /%252F/  # Linux server
-    f.gsub!("%252F", "/")
-  else             # OS X server
-    f.gsub!("%2F", "/")
+get "/hash/:file" do
+  f = slash_process(params[:file])
+  lx_command = config.lx_command
+  cd config.public_folder do
+    result = %x[#{lx_command} hash #{torrent_with_pic f}]
+    return {hash: result.strip}.to_json
   end
+end
+
+get "/lx/:file/:async" do
+  f = slash_process(params[:file])
   lx_command = config.lx_command
   cd config.public_folder do
     if params[:async] == "1"
