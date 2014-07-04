@@ -161,7 +161,7 @@ get "/torrents" do
     end
     if File.exists?(folders[1])
       cd folders[1] do
-        list = Dir["**"].select{ |f| !(["SyncArchive", "tu.rb"].include?(f)) }.sort_by do |x|
+        list = Dir["**"].select{ |f| !(["SyncArchive", "tu.rb", "Icon?"].include?(f)) }.sort_by do |x|
           m = x[1...x.index(']')].split("-")
           [m.length, *m.map{|a|a.to_i}]
         end.reverse
