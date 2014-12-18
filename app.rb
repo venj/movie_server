@@ -178,8 +178,10 @@ get "/torrents" do
   return datelist.to_json
 end
 
-get "/search/:keyword" do
-  keyword = params[:keyword]
+#get "/search/:keyword" do
+get %r{/search/(.+)} do
+  keyword = URI.unescape params[:captures].first
+  #keyword = params[:keyword]
   pics = []
   max_pic_size = config.max_pic_size
   folders = config.relative_folders
