@@ -221,7 +221,7 @@ get "/lx/:file/:async" do
       }
       return {status: "done"}.to_json
     elsif params[:async] == "0"
-      result = %x[#{lx_command} add #{torrent_with_pic f}]
+      result = %x[#{lx_command} add #{torrent_with_pic f.shellescape}]
       if result =~ /completed/
         status = "completed"
       elsif result =~ /waiting/
