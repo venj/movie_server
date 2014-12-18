@@ -206,7 +206,7 @@ get "/hash/:file" do
   f = slash_process(params[:file])
   lx_command = config.lx_command
   cd config.public_folder do
-    result = %x[#{lx_command} hash #{torrent_with_pic f.shellescape}]
+    result = %x[#{lx_command} hash #{(torrent_with_pic f).shellescape}]
     return {hash: result.strip}.to_json
   end
 end
@@ -217,11 +217,11 @@ get "/lx/:file/:async" do
   cd config.public_folder do
     if params[:async] == "1"
       fork {
-        exec "#{lx_command} add #{torrent_with_pic f}"
+        exec "#{lx_command} add #{(torrent_with_pic f).shellescape}"
       }
       return {status: "done"}.to_json
     elsif params[:async] == "0"
-      result = %x[#{lx_command} add #{torrent_with_pic f.shellescape}]
+      result = %x[#{lx_command} add #{(torrent_with_pic f).shellescape}]
       if result =~ /completed/
         status = "completed"
       elsif result =~ /waiting/
