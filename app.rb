@@ -154,9 +154,11 @@ get "/torrents" do
   cd config.public_folder do
     if File.exists?(folders[0])
       cd folders[0] do
-        regex = /(\d{4}\/\d{2}-\d{1,2})(-\d)?\/1\/$/
-        selected = open(".finished").readlines.to_a.select { |u| u.strip =~ regex }
-        datelist = selected.map { |u| regex.match(u)[1].gsub("/", "_") }.sort.reverse
+        if File.exists?(".finished")
+          regex = /(\d{4}\/\d{2}-\d{1,2})(-\d)?\/1\/$/
+          selected = open(".finished").readlines.to_a.select { |u| u.strip =~ regex }
+          datelist = selected.map { |u| regex.match(u)[1].gsub("/", "_") }.sort.reverse
+        end
       end
     end
     if File.exists?(folders[1])
@@ -204,7 +206,7 @@ get "/hash/:file" do
   f = slash_process(params[:file])
   lx_command = config.lx_command
   cd config.public_folder do
-    result = %x[#{lx_command} hash #{torrent_with_pic f}]
+    result = %x[#{lx_command} hash #{torrent_with_pic f.shellescape}]
     return {hash: result.strip}.to_json
   end
 end
