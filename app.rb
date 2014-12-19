@@ -213,7 +213,7 @@ get "/hash/:file" do
   lx_command = config.lx_command
   lx_hash_command = config.lx_hash_command
   cd config.public_folder do
-    result = %x[#{lx_hash_command} #{(torrent_with_pic f).shellescape}]
+    result = %x[#{lx_hash_command} #{(torrent_with_pic f).shellescape}].split(" ")[0]
     return {hash: result.strip}.to_json
   end
 end
