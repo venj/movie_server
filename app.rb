@@ -21,6 +21,10 @@ class AppConfig
   def lx_command
     @vars["lixian_command"]
   end
+
+  def lx_hash_command
+    @vars["lixian_hash_command"]
+  end
   
   def max_pic_size
     @vars["max_pic_size"].to_i * 1024
@@ -207,8 +211,9 @@ end
 get "/hash/:file" do
   f = slash_process(params[:file])
   lx_command = config.lx_command
+  lx_hash_command = config.lx_hash_command
   cd config.public_folder do
-    result = %x[#{lx_command} hash #{(torrent_with_pic f).shellescape}]
+    result = %x[#{lx_hash_command} #{(torrent_with_pic f).shellescape}]
     return {hash: result.strip}.to_json
   end
 end
