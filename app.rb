@@ -70,11 +70,19 @@ helpers do
       tr_base = pic_name.gsub(/(201\d_\d\d-\d\d?-?\d?)\./, '\1_')
       tr_name = File.join(pic_dir, "#{tr_base}.torrent")
       if File.exists?(tr_name)
-        return tr_name
+        if is_windows
+          return tr_name
+        else
+          return tr_name.shellescape
+        end
       else
         return nil
       end
     end
+  end
+
+  def is_windows
+    ENV['OS'] == "Windows_NT" ? true : false
   end
 
   def slash_process(file)
@@ -145,7 +153,7 @@ delete "/remove/:file" do
   end
   cd config.public_folder do
     if File.exists?(f)
-      %x[rm -f #{f.shellescape}]
+      rm_f (is_windows ? f : f.shellescape)
     end
   end
   {status: "done"}.to_json
@@ -213,7 +221,7 @@ get "/hash/:file" do
   lx_command = config.lx_command
   lx_hash_command = config.lx_hash_command
   cd config.public_folder do
-    result = %x[#{lx_hash_command} #{(torrent_with_pic f).shellescape}].split(" ")[0]
+    result = %x|#{lx_hash_command} #{torrent_with_pic f}|.split(" ")[0]
     return {hash: result.strip}.to_json
   end
 end
@@ -224,11 +232,11 @@ get "/lx/:file/:async" do
   cd config.public_folder do
     if params[:async] == "1"
       fork {
-        exec "#{lx_command} add #{(torrent_with_pic f).shellescape}"
+        exec "#{lx_command} add #{torrent_with_pic f}"
       }
       return {status: "done"}.to_json
     elsif params[:async] == "0"
-      result = %x[#{lx_command} add #{(torrent_with_pic f).shellescape}]
+      result = %x[#{lx_command} add #{torrent_with_pic f}]
       if result =~ /completed/
         status = "completed"
       elsif result =~ /waiting/
