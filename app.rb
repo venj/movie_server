@@ -21,6 +21,10 @@ class AppConfig
   def lx_command
     @vars["lixian_command"]
   end
+
+  def lx_hash_command
+    @vars["lixian_hash_command"]
+  end
   
   def max_pic_size
     @vars["max_pic_size"].to_i * 1024
@@ -66,11 +70,19 @@ helpers do
       tr_base = pic_name.gsub(/(201\d_\d\d-\d\d?-?\d?)\./, '\1_')
       tr_name = File.join(pic_dir, "#{tr_base}.torrent")
       if File.exists?(tr_name)
-        return tr_name
+        if is_windows
+          return tr_name
+        else
+          return tr_name.shellescape
+        end
       else
         return nil
       end
     end
+  end
+
+  def is_windows
+    ENV['OS'] == "Windows_NT" ? true : false
   end
 
   def slash_process(file)
@@ -141,7 +153,7 @@ delete "/remove/:file" do
   end
   cd config.public_folder do
     if File.exists?(f)
-      %x[rm -f #{f.shellescape}]
+      rm_f (is_windows ? f : f.shellescape)
     end
   end
   {status: "done"}.to_json
@@ -154,9 +166,11 @@ get "/torrents" do
   cd config.public_folder do
     if File.exists?(folders[0])
       cd folders[0] do
-        regex = /(\d{4}\/\d{2}-\d{1,2})(-\d)?\/1\/$/
-        selected = open(".finished").readlines.to_a.select { |u| u.strip =~ regex }
-        datelist = selected.map { |u| regex.match(u)[1].gsub("/", "_") }.sort.reverse
+        if File.exists?(".finished")
+          regex = /(\d{4}\/\d{2}-\d{1,2})(-\d)?\/1\/$/
+          selected = open(".finished").readlines.to_a.select { |u| u.strip =~ regex }
+          datelist = selected.map { |u| regex.match(u)[1].gsub("/", "_") }.sort.reverse
+        end
       end
     end
     if File.exists?(folders[1])
@@ -176,8 +190,10 @@ get "/torrents" do
   return datelist.to_json
 end
 
-get "/search/:keyword" do
-  keyword = params[:keyword]
+#get "/search/:keyword" do
+get %r{/search/(.+)} do
+  keyword = URI.unescape params[:captures].first
+  #keyword = params[:keyword]
   pics = []
   max_pic_size = config.max_pic_size
   folders = config.relative_folders
@@ -203,8 +219,9 @@ end
 get "/hash/:file" do
   f = slash_process(params[:file])
   lx_command = config.lx_command
+  lx_hash_command = config.lx_hash_command
   cd config.public_folder do
-    result = %x[#{lx_command} hash #{torrent_with_pic f}]
+    result = %x|#{lx_hash_command} #{torrent_with_pic f}|.split(" ")[0]
     return {hash: result.strip}.to_json
   end
 end

@@ -4,6 +4,7 @@ relative_folders:
     - "BTSync/torrents"
     - "Office_LAN"
 lixian_command: "/path/to/lixian_cli.py"
+lixian_hash_command: "/path/to/lixian_hash.py --info-hash"
 max_pic_size: 1024
 default_sort_order: true
 enable_basic_auth: false
