@@ -161,7 +161,7 @@ get "/torrents" do
     end
     if File.exists?(folders[1])
       cd folders[1] do
-        list = Dir["**"].select{ |f| !(["SyncArchive", "tu.rb", "Icon?"].include?(f)) }.sort_by do |x|
+        list = Dir["**"].select{ |f| !(["SyncArchive", "tu.rb", "Icon?"].include?(f) or f =~ /Icon/) }.sort_by do |x|
           m = x[1...x.index(']')].split("-")
           [m.length, *m.map{|a|a.to_i}]
         end.reverse
@@ -226,6 +226,10 @@ get "/lx/:file/:async" do
         status = "waiting"
       elsif result =~ /downloading/
         status = "downloading"
+      elsif result =~ /\[0976\]/
+        status = "Oh no, 0976"
+      elsif result =~ /Verification code required/
+        status = "Oh no, code"
       else
         status = "failed or unknown"
       end
