@@ -7,6 +7,7 @@ require "yaml"
 require "shellwords"
 require "date"
 require "fileutils"
+require "sqlite3"
 include FileUtils
 
 class AppConfig
@@ -48,6 +49,10 @@ class AppConfig
   
   def password
     @vars["auth"][1]
+  end
+
+  def tr_db_path
+    @vars["tr_db_path"]
   end
   
 end
@@ -105,6 +110,31 @@ helpers do
     config = AppConfig.new
     @auth.provided? and @auth.basic? and @auth.credentials and @auth.credentials == [config.username, config.password]
   end
+
+  def db_search(keyword)
+    config = AppConfig.new
+    path = config.tr_db_path
+    unless File.exists? path
+      return { success: false, message: "No torrents db.", results:nil }.to_json
+    end
+
+    begin
+      db = SQLite3::Database.new path
+    rescue SQLite3::Exception => e 
+      return { success: false, message: "Can not open file", results:nil }.to_json
+    end
+
+    trs = []
+    db.execute "SELECT name, size, magnet FROM Torrents WHERE `name` LIKE '%#{keyword}%'" do |row|
+      trs << {name: row[0], size: row[1], magnet: row[2]}
+    end
+    if trs.size > 0
+      return { success: true, message: "Found #{trs.size} torrents", results:trs }.to_json
+    else
+      return { success: false, message: "No torrent found", results:nil }.to_json
+    end
+  end
+
 end
 
 def date_with_pic(pic)
@@ -142,6 +172,11 @@ get "/info/:file" do
       return {exist: false}.to_json
     end
   end
+end
+
+get "/db_search" do
+  keyword = params[:keyword]
+  return db_search(keyword)
 end
 
 delete "/remove/:file" do
