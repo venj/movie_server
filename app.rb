@@ -118,6 +118,10 @@ helpers do
       return { success: false, message: "No torrents db.", results:nil }.to_json
     end
 
+    if keyword.empty?
+      return { success: false, message: "Empty search keyword.", results:nil }.to_json
+    end
+
     begin
       db = SQLite3::Database.new path
     rescue SQLite3::Exception => e 
