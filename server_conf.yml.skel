@@ -7,8 +7,11 @@ lixian_command: "/path/to/lixian_cli.py"
 lixian_hash_command: "/path/to/lixian_hash.py --info-hash"
 max_pic_size: 1024
 default_sort_order: true
-enable_basic_auth: false
 tr_db_path: "/some/path/to/db"
+ssl_enabled: true
+ssl_key_path: "/some/path/to/key"
+ssl_cert_path: "/some/path/to/certificate"
+enable_basic_auth: false
 auth:
     - admin
     - admin

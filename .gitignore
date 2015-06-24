@@ -2,3 +2,5 @@ server_conf.yml
 thin.yml
 tmp/*
 log/*
+*.key
+*.pem

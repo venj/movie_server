@@ -13,3 +13,8 @@ wait: 30
 servers: 1
 daemonize: true
 threaded: true
+# Uncomment these lines if you use ssl.
+# ssl: true
+# ssl_key_file: /path/to/ssl/key
+# ssl_cert_file: /path/to/ssl/cert
+# ssl_disable_verify: true

@@ -8,6 +8,7 @@ require "shellwords"
 require "date"
 require "fileutils"
 require "sqlite3"
+
 include FileUtils
 
 class AppConfig
@@ -54,10 +55,28 @@ class AppConfig
   def tr_db_path
     @vars["tr_db_path"]
   end
+
+  def ssl_enabled
+    @vars["ssl_enabled"]
+  end
+
+  def ssl_key_path
+    @vars["ssl_key_path"]
+  end
   
+  def ssl_cert_path
+    @vars["ssl_cert_path"]
+  end
 end
 
 config = AppConfig.new
+
+if config.ssl_enabled
+  require File.join(File.dirname(__FILE__), "sinatra_ssl")
+  set :ssl_certificate, config.ssl_cert_path
+  set :ssl_key, config.ssl_key_path
+  set :port, 8443
+end
 
 helpers do
   def torrent_with_pic(pic)
