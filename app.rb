@@ -152,7 +152,7 @@ helpers do
     end
 
     trs = []
-    db.execute "SELECT name, size, magnet, upload_date, seeders FROM torrents WHERE `name` LIKE '%#{keyword}%' ORDER BY upload_date DESC, seeders DESC" do |row|
+    db.execute "SELECT name, size, magnet, upload_date, seeders FROM torrents WHERE `name` LIKE '%#{keyword}%' ORDER BY upload_date DESC" do |row|
       trs << {name: row[0], size: row[1], magnet: row[2], upload_date: row[3].to_i, seeders: row[4] }
     end
     if trs.size > 0
