@@ -12,6 +12,7 @@ ssl_enabled: true
 ssl_key_path: "/some/path/to/key"
 ssl_cert_path: "/some/path/to/certificate"
 enable_basic_auth: false
+user_agnet_pattern: "some_regex_pattern"
 auth:
     - admin
     - admin

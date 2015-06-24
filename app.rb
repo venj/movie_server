@@ -67,6 +67,10 @@ class AppConfig
   def ssl_cert_path
     @vars["ssl_cert_path"]
   end
+
+  def user_agnet_pattern
+    @vars["user_agnet_pattern"]
+  end
 end
 
 config = AppConfig.new
@@ -170,7 +174,7 @@ before do
   content_type 'text/json'
   protected! if config.basic_auth_enabled?
   puts headers
-  halt 401, {status: "Not allowed."}.to_json if request.user_agent !~ /me\.venj\.Video-Player/
+  halt 401, {status: "Not allowed."}.to_json if request.user_agent !~ Regexp.new(config.user_agnet_pattern)
 end
 
 # Movie live cast
