@@ -150,6 +150,8 @@ set :public_folder, config.public_folder
 before do
   content_type 'text/json'
   protected! if config.basic_auth_enabled?
+  puts headers
+  halt 401, {status: "Not allowed."}.to_json if request.user_agent !~ /me\.venj\.Video-Player/
 end
 
 # Movie live cast
