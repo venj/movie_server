@@ -280,7 +280,12 @@ get %r{/search/(.+)} do
 end
 
 get "/hash/:file" do
-  f = Base64.decode64 params[:file]
+  fileParam = params[:file]
+  if (fileParam.downcase.include? '%2f' or fileParam.downcase.include? '%252f') and fileParam.downcase.include? 'bt'
+    f = slash_process(params[:file])
+  else
+    f = Base64.decode64 params[:file]
+  end
   lx_command = config.lx_command
   lx_hash_command = config.lx_hash_command
   cd config.public_folder do
@@ -290,7 +295,7 @@ get "/hash/:file" do
 end
 
 get "/lx/:file/:async" do
-  f = Base64.decode64 params[:file]
+  f = slash_process(params[:file])
   lx_command = config.lx_command
   cd config.public_folder do
     if params[:async] == "1"
