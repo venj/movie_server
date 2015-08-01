@@ -8,6 +8,7 @@ require "shellwords"
 require "date"
 require "fileutils"
 require "sqlite3"
+require "base64"
 
 include FileUtils
 
@@ -89,7 +90,6 @@ helpers do
     tr_name_1 = File.join(pic_dir, "#{pic_name}.torrent")
     frags = pic.split("_");frags.pop
     tr_name_2 = "#{frags.join("_")}.torrent"
-    puts tr_name_1
     if File.exists?(tr_name_1)
       return tr_name_1
     elsif File.exists?(tr_name_2)
@@ -173,7 +173,6 @@ set :public_folder, config.public_folder
 before do
   content_type 'text/json'
   protected! if config.basic_auth_enabled?
-  puts headers
   halt 401, {status: "Not allowed."}.to_json if request.user_agent !~ Regexp.new(config.user_agnet_pattern)
 end
 
@@ -281,7 +280,7 @@ get %r{/search/(.+)} do
 end
 
 get "/hash/:file" do
-  f = slash_process(params[:file])
+  f = Base64.decode64 params[:file]
   lx_command = config.lx_command
   lx_hash_command = config.lx_hash_command
   cd config.public_folder do
@@ -291,7 +290,7 @@ get "/hash/:file" do
 end
 
 get "/lx/:file/:async" do
-  f = slash_process(params[:file])
+  f = Base64.decode64 params[:file]
   lx_command = config.lx_command
   cd config.public_folder do
     if params[:async] == "1"
