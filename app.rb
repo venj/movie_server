@@ -85,11 +85,7 @@ end
 
 helpers do
   def torrent_with_pic(pic)
-    pic_name = File.basename(pic, '.jpg')
-    pic_dir = File.dirname(pic)
-    
-    tr_base = pic_name.gsub(/(201\d_\d\d-\d\d?-?\d?)\./, '\1_')
-    tr_name = File.join(pic_dir, "#{tr_base}.torrent")
+    tr_name = File.join(File.dirname(pic), "#{File.basename(pic, '.jpg').split('_').first}.torrent")
     if File.exists?(tr_name)
       if is_windows
         return tr_name
@@ -99,7 +95,6 @@ helpers do
     else
       return nil
     end
-    
   end
 
   def is_windows
