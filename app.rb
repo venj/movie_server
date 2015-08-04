@@ -1,14 +1,14 @@
 #!/usr/bin/env ruby
 #encoding = UTF-8
-require "rubygems"
-require "sinatra"
-require "json"
-require "yaml"
+require 'rubygems'
+require 'sinatra'
+require 'json'
+require 'yaml'
 require "shellwords"
-require "date"
-require "fileutils"
-require "sqlite3"
-require "base64"
+require 'date'
+require 'fileutils'
+require 'sqlite3'
+require 'base64'
 
 include FileUtils
 
@@ -18,66 +18,66 @@ class AppConfig
   end
   
   def public_folder
-    @vars["public_folder"]
+    @vars['public_folder']
   end
   
   def lx_command
-    @vars["lixian_command"]
+    @vars['lixian_command']
   end
 
   def lx_hash_command
-    @vars["lixian_hash_command"]
+    @vars['lixian_hash_command']
   end
   
   def max_pic_size
-    @vars["max_pic_size"].to_i * 1024
+    @vars['max_pic_size'].to_i * 1024
   end
   
   def relative_folders
-    @vars["relative_folders"]
+    @vars['relative_folders']
   end
   
   def default_sort?
-    @vars["default_sort_order"]
+    @vars['default_sort_order']
   end
   
   def basic_auth_enabled?
-    @vars["enable_basic_auth"]
+    @vars['enable_basic_auth']
   end
   
   def username
-    @vars["auth"][0]
+    @vars['auth'][0]
   end
   
   def password
-    @vars["auth"][1]
+    @vars['auth'][1]
   end
 
   def tr_db_path
-    @vars["tr_db_path"]
+    @vars['tr_db_path']
   end
 
   def ssl_enabled
-    @vars["ssl_enabled"]
+    @vars['ssl_enabled']
   end
 
   def ssl_key_path
-    @vars["ssl_key_path"]
+    @vars['ssl_key_path']
   end
   
   def ssl_cert_path
-    @vars["ssl_cert_path"]
+    @vars['ssl_cert_path']
   end
 
   def user_agnet_pattern
-    @vars["user_agnet_pattern"]
+    @vars['user_agnet_pattern']
   end
 end
 
 config = AppConfig.new
 
 if config.ssl_enabled
-  require File.join(File.dirname(__FILE__), "sinatra_ssl")
+  require File.join(File.dirname(__FILE__), 'sinatra_ssl')
   set :ssl_certificate, config.ssl_cert_path
   set :ssl_key, config.ssl_key_path
   set :port, 8443
@@ -85,47 +85,40 @@ end
 
 helpers do
   def torrent_with_pic(pic)
-    pic_name = File.basename(pic, ".jpg")
+    pic_name = File.basename(pic, '.jpg')
     pic_dir = File.dirname(pic)
-    tr_name_1 = File.join(pic_dir, "#{pic_name}.torrent")
-    frags = pic.split("_");frags.pop
-    tr_name_2 = "#{frags.join("_")}.torrent"
-    if File.exists?(tr_name_1)
-      return tr_name_1
-    elsif File.exists?(tr_name_2)
-      return tr_name_2
-    else
-      tr_base = pic_name.gsub(/(201\d_\d\d-\d\d?-?\d?)\./, '\1_')
-      tr_name = File.join(pic_dir, "#{tr_base}.torrent")
-      if File.exists?(tr_name)
-        if is_windows
-          return tr_name
-        else
-          return tr_name.shellescape
-        end
+    
+    tr_base = pic_name.gsub(/(201\d_\d\d-\d\d?-?\d?)\./, '\1_')
+    tr_name = File.join(pic_dir, "#{tr_base}.torrent")
+    if File.exists?(tr_name)
+      if is_windows
+        return tr_name
       else
-        return nil
+        return tr_name.shellescape
       end
+    else
+      return nil
     end
+    
   end
 
   def is_windows
-    ENV['OS'] == "Windows_NT" ? true : false
+    ENV['OS'] == 'Windows_NT'? true : false
   end
 
   def slash_process(file)
     f = file
     if f =~ /%252F/  # Linux server
-      f.gsub!("%252F", "/")
+      f.gsub!('%252F', '/')
     else             # OS X server
-      f.gsub!("%2F", "/")
+      f.gsub!('2F', '/')
     end
   end
 
   def protected!
     return if authorized?
     headers['WWW-Authenticate'] = 'Basic realm="Restricted Area"'
-    halt 401, {status: "Not authorized"}.to_json
+    halt 401, {status: 'Not authorized'}.to_json
   end
 
   def authorized?
@@ -138,17 +131,17 @@ helpers do
     config = AppConfig.new
     path = config.tr_db_path
     unless File.exists? path
-      return { success: false, message: "No torrents db.", results:nil }.to_json
+      return { success: false, message: 'No torrents db.', results:nil }.to_json
     end
 
     if keyword.empty?
-      return { success: false, message: "Empty search keyword.", results:nil }.to_json
+      return { success: false, message: 'Empty search keyword.', results:nil }.to_json
     end
 
     begin
       db = SQLite3::Database.new path
     rescue SQLite3::Exception => e 
-      return { success: false, message: "Can not open file", results:nil }.to_json
+      return { success: false, message: 'Can not open file', results:nil }.to_json
     end
 
     trs = []
@@ -158,7 +151,7 @@ helpers do
     if trs.size > 0
       return { success: true, message: "Found #{trs.size} torrents", results:trs }.to_json
     else
-      return { success: false, message: "No torrent found", results:nil }.to_json
+      return { success: false, message: 'No torrent found', results:nil }.to_json
     end
   end
 
@@ -173,14 +166,14 @@ set :public_folder, config.public_folder
 before do
   content_type 'text/json'
   protected! if config.basic_auth_enabled?
-  halt 401, {status: "Not allowed."}.to_json if request.user_agent !~ Regexp.new(config.user_agnet_pattern)
+  halt 401, {status: 'Not allowed.'}.to_json if request.user_agent !~ Regexp.new(config.user_agnet_pattern)
 end
 
 # Movie live cast
-get "/" do
+get '/' do
   movies = []
   cd config.public_folder do
-    movies = Dir["**/*"].select { |f| ["mp4", "m4v", "mov"].include?(f.split(".").last.downcase) and !File.directory?(f) }.sort.to_json
+    movies = Dir["**/*"].select { |f| ['mp4', 'm4v', 'mov'].include?(f.split('.').last.downcase) and !File.directory?(f) }.sort.to_json
   end
   movies
 end
@@ -188,9 +181,9 @@ end
 get "/info/:file" do
   f = params[:file]
   if f =~ /%252F/  # Linux server
-    f.gsub!("%252F", "/")
+    f.gsub!('%252F', '/')
   else             # OS X server
-    f.gsub!("%2F", "/")
+    f.gsub!('%2F', '/')
   end
   cd config.public_folder do
     if File.exists?(f)
@@ -202,7 +195,7 @@ get "/info/:file" do
   end
 end
 
-get "/db_search" do
+get '/db_search' do
   keyword = params[:keyword]
   return db_search(keyword)
 end
@@ -210,38 +203,30 @@ end
 delete "/remove/:file" do
   f = params[:file]
   if f =~ /%252F/  # Linux server
-    f.gsub!("%252F", "/")
+    f.gsub!('%252F', '/')
   else             # OS X server
-    f.gsub!("%2F", "/")
+    f.gsub!('%2F', '/')
   end
   cd config.public_folder do
     if File.exists?(f)
       rm_f (is_windows ? f : f.shellescape)
     end
   end
-  {status: "done"}.to_json
+  {status: 'done'}.to_json
 end
 
 # Torrents related
-get "/torrents" do
+get '/torrents' do
   datelist = []
   folders = config.relative_folders
   cd config.public_folder do
+    
     if File.exists?(folders[0])
       cd folders[0] do
-        if File.exists?(".finished")
-          regex = /(\d{4}\/\d{2}-\d{1,2})(-\d)?\/1\/$/
-          selected = open(".finished").readlines.to_a.select { |u| u.strip =~ regex }
-          datelist = selected.map { |u| regex.match(u)[1].gsub("/", "_") }.sort.reverse
-        end
-      end
-    end
-    if File.exists?(folders[1])
-      cd folders[1] do
-        list = Dir["**"].select{ |f| !(["SyncArchive", "tu.rb", "Icon?"].include?(f) or f =~ /Icon/) }.sort_by do |x|
-          m = x[1...x.index(']')].split("-")
+        list = Dir["**"].select{ |f| !(['SyncArchive', 'tu.rb', 'Icon?'].include?(f) or f =~ /Icon/) }.sort_by { |x|
+          m = x[1...x.index(']')].split('-')
           [m.length, *m.map{|a|a.to_i}]
-        end.reverse
+        }.reverse
         if config.default_sort?
           datelist = list + datelist
         else
@@ -253,7 +238,6 @@ get "/torrents" do
   return datelist.to_json
 end
 
-#get "/search/:keyword" do
 get %r{/search/(.+)} do
   keyword = URI.unescape params[:captures].first
   #keyword = params[:keyword]
@@ -261,18 +245,18 @@ get %r{/search/(.+)} do
   max_pic_size = config.max_pic_size
   folders = config.relative_folders
   cd config.public_folder do
-    if keyword.index("[")
-      cd File.join(folders[1], keyword) do
-        pics = Dir["*"].select do |f|
-          if ["jpg", "gif", "png", "bmp", "jpeg"].index(f.split(".").last.downcase)
-            File.stat(f).size < max_pic_size
-          end
+    if keyword.index('[')
+      cd File.join(folders[0], keyword) do
+        pics.sort! do |a, b|
+        	comps_a = a.split('.').first.split('_')
+        	comps_b = b.split('.').first.split('_')
+        	return comps_a[0] <=> comps_b[0] && comps_a[1].to_i <=> comps_b[1]
         end
         pics.map!{ |f| File.join(folders[1], keyword, f) }
       end
     else
       cd folders[0] do
-        pics = Dir["**/*#{keyword}*"].select{ |f| ["jpg", "jpeg"].index(f.split(".").last.downcase) }.map{|f| File.join(folders[0], f)}
+        pics = Dir["**/*#{keyword}*"].select{ |f| ['jpg', 'jpeg'].index(f.split('.').last.downcase) }.map{|f| File.join(folders[0], f)}
       end
     end
   end
@@ -289,7 +273,7 @@ get "/hash/:file" do
   lx_command = config.lx_command
   lx_hash_command = config.lx_hash_command
   cd config.public_folder do
-    result = %x|#{lx_hash_command} #{torrent_with_pic f}|.split(" ")[0]
+    result = %x|#{lx_hash_command} #{torrent_with_pic f}|.split(' ')[0]
     return {hash: result.strip}.to_json
   end
 end
@@ -310,25 +294,25 @@ get "/lx/:file/:async" do
   f = slash_process(params[:file])
   lx_command = config.lx_command
   cd config.public_folder do
-    if params[:async] == "1"
+    if params[:async] == '1'
       fork {
         exec "#{lx_command} add #{torrent_with_pic f}"
       }
-      return {status: "done"}.to_json
+      return {status: 'done'}.to_json
     elsif params[:async] == "0"
       result = %x[#{lx_command} add #{torrent_with_pic f}]
       if result =~ /completed/
-        status = "completed"
+        status = 'completed'
       elsif result =~ /waiting/
-        status = "waiting"
+        status = 'waiting'
       elsif result =~ /downloading/
-        status = "downloading"
+        status = 'downloading'
       elsif result =~ /\[0976\]/
-        status = "Oh no, 0976"
+        status = 'Oh no, 0976'
       elsif result =~ /Verification code required/
-        status = "Oh no, code"
+        status = 'Oh no, code'
       else
-        status = "failed or unknown"
+        status = 'failed or unknown'
       end
       return {status: status}.to_json
     end

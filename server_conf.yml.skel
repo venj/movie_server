@@ -1,7 +1,6 @@
 ---
 public_folder: "/path/to/movie/files"
 relative_folders:
-    - "BTSync/torrents"
     - "Office_LAN"
 lixian_command: "/path/to/lixian_cli.py"
 lixian_hash_command: "/path/to/lixian_hash.py --info-hash"
