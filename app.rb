@@ -240,27 +240,17 @@ end
 
 get %r{/search/(.+)} do
   keyword = URI.unescape params[:captures].first
-  #keyword = params[:keyword]
-  pics = []
-  max_pic_size = config.max_pic_size
-  folders = config.relative_folders
+  folder = config.relative_folders.first
   cd config.public_folder do
-    if keyword.index('[')
-      cd File.join(folders[0], keyword) do
-        pics.sort! do |a, b|
-        	comps_a = a.split('.').first.split('_')
-        	comps_b = b.split('.').first.split('_')
-        	return comps_a[0] <=> comps_b[0] && comps_a[1].to_i <=> comps_b[1]
-        end
-        pics.map!{ |f| File.join(folders[1], keyword, f) }
-      end
-    else
-      cd folders[0] do
-        pics = Dir["**/*#{keyword}*"].select{ |f| ['jpg', 'jpeg'].index(f.split('.').last.downcase) }.map{|f| File.join(folders[0], f)}
-      end
+    cd File.join(folder, keyword) do
+      return Dir["*"].select do |f| 
+        ["jpg", "gif", "png", "bmp", "jpeg"].index(f.split(".").last.downcase) 
+      end.sort_by do |a|
+        c = a.split('_')
+        [c.first, c.last.to_i]
+      end.map{ |f| File.join(folder, keyword, f) }.to_json
     end
   end
-  return pics.sort.to_json
 end
 
 get "/hash/:file" do
