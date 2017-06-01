@@ -227,11 +227,13 @@ get '/torrents' do
 
         if include_stats
           items_counts += list.map do |d|
+            c = []
             cd d
-              return Dir["*"].select do |f|
+              c << Dir["*"].select do |f|
                 ["jpg", "gif", "png", "bmp", "jpeg"].index(f.split(".").last.downcase)
               end.count
             end
+            c
           end
         end
         datelist += list
