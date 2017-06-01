@@ -16,11 +16,11 @@ class AppConfig
   def initialize
     @vars = YAML.load(open(File.join(File.dirname(__FILE__), 'server_conf.yml')).read)
   end
-  
+
   def public_folder
     @vars['public_folder']
   end
-  
+
   def lx_command
     @vars['lixian_command']
   end
@@ -28,27 +28,27 @@ class AppConfig
   def lx_hash_command
     @vars['lixian_hash_command']
   end
-  
+
   def max_pic_size
     @vars['max_pic_size'].to_i * 1024
   end
-  
+
   def relative_folders
     @vars['relative_folders']
   end
-  
+
   def default_sort?
     @vars['default_sort_order']
   end
-  
+
   def basic_auth_enabled?
     @vars['enable_basic_auth']
   end
-  
+
   def username
     @vars['auth'][0]
   end
-  
+
   def password
     @vars['auth'][1]
   end
@@ -64,7 +64,7 @@ class AppConfig
   def ssl_key_path
     @vars['ssl_key_path']
   end
-  
+
   def ssl_cert_path
     @vars['ssl_cert_path']
   end
@@ -135,7 +135,7 @@ helpers do
 
     begin
       db = SQLite3::Database.new path
-    rescue SQLite3::Exception => e 
+    rescue SQLite3::Exception => e
       return { success: false, message: 'Can not open file', results:nil }.to_json
     end
 
@@ -212,25 +212,33 @@ end
 
 # Torrents related
 get '/torrents' do
+  include_stats = params[:stats]
   datelist = []
+  items_counts = []
   folders = config.relative_folders
   cd config.public_folder do
-    
+
     if File.exists?(folders[0])
       cd folders[0] do
         list = Dir["**"].select{ |f| !(['SyncArchive', 'tu.rb', 'Icon?'].include?(f) or f =~ /Icon/) }.sort_by { |x|
           m = x[1...x.index(']')].split('-')
           [m.length, *m.map{|a|a.to_i}]
         }.reverse
-        if config.default_sort?
-          datelist = list + datelist
-        else
-          datelist += list
+
+        if include_stats
+          items_counts += list.map do |d|
+            cd d
+              return Dir["*"].select do |f|
+                ["jpg", "gif", "png", "bmp", "jpeg"].index(f.split(".").last.downcase)
+              end.count
+            end
+          end
         end
+        datelist += list
       end
     end
   end
-  return datelist.to_json
+  return include_stats ? {"items": datelist, "count":  items_counts}.to_json : datelist.to_json
 end
 
 get %r{/search/(.+)} do
@@ -238,8 +246,8 @@ get %r{/search/(.+)} do
   folder = config.relative_folders.first
   cd config.public_folder do
     cd File.join(folder, keyword) do
-      return Dir["*"].select do |f| 
-        ["jpg", "gif", "png", "bmp", "jpeg"].index(f.split(".").last.downcase) 
+      return Dir["*"].select do |f|
+        ["jpg", "gif", "png", "bmp", "jpeg"].index(f.split(".").last.downcase)
       end.sort_by do |a|
         c = a.split('_')
         [c.first, c.last.to_i]

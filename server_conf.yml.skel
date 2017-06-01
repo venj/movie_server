@@ -7,7 +7,6 @@ lixian_hash_command: "/path/to/lixian_hash.py --info-hash"
 torrent_cache: "/var/cache"
 cfdl_cmd: "/usr/bin/cfdl"
 max_pic_size: 1024
-default_sort_order: true
 tr_db_path: "/some/path/to/db"
 ssl_enabled: true
 ssl_key_path: "/some/path/to/key"
