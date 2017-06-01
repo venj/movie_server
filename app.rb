@@ -238,7 +238,7 @@ get '/torrents' do
       end
     end
   end
-  return include_stats ? {"items": datelist, "count":  items_counts}.to_json : datelist.to_json
+  return include_stats ? {"items" => datelist, "count" =>  items_counts}.to_json : datelist.to_json
 end
 
 get %r{/search/(.+)} do
