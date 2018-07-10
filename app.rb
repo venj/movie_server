@@ -9,6 +9,8 @@ require 'date'
 require 'fileutils'
 require 'sqlite3'
 require 'base64'
+require 'open-uri'
+require 'active_support/all'
 
 include FileUtils
 
@@ -241,6 +243,18 @@ get '/torrents' do
     end
   end
   return include_stats ? {"items" => datelist, "count" =>  items_counts}.to_json : datelist.to_json
+end
+
+get "/torrent/:hash" do
+  cache_dir = config.torrent_cache
+  cfdl_cmd = config.cfdl_cmd
+  target_file = File.join(cache_dir, "#{hash}.torrent")
+  system("#{cfdl_cmd} -d wget -u http://itorrents.org/torrent/#{hash}.torrent -- -O #{target_file}")
+  if File.exists?(target_file)
+    send_file target_file
+  else
+    status 404
+  end
 end
 
 get %r{/search/(.+)} do
