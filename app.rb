@@ -19,32 +19,8 @@ class AppConfig
     @vars = YAML.load(open(File.join(File.dirname(__FILE__), 'server_conf.yml')).read)
   end
 
-  def public_folder
-    @vars['public_folder']
-  end
-
-  def lx_command
-    @vars['lixian_command']
-  end
-
-  def lx_hash_command
-    @vars['lixian_hash_command']
-  end
-
   def max_pic_size
     @vars['max_pic_size'].to_i * 1024
-  end
-
-  def relative_folders
-    @vars['relative_folders']
-  end
-
-  def default_sort?
-    @vars['default_sort_order']
-  end
-
-  def basic_auth_enabled?
-    @vars['enable_basic_auth']
   end
 
   def username
@@ -55,24 +31,12 @@ class AppConfig
     @vars['auth'][1]
   end
 
-  def tr_db_path
-    @vars['tr_db_path']
-  end
-
-  def ssl_enabled
-    @vars['ssl_enabled']
-  end
-
-  def ssl_key_path
-    @vars['ssl_key_path']
-  end
-
-  def ssl_cert_path
-    @vars['ssl_cert_path']
-  end
-
-  def user_agnet_pattern
-    @vars['user_agnet_pattern']
+  def method_missing(m, *args, &block)
+    method_name = m.to_s
+    key = method_name.include?('?') ? method_name.chop : method_name
+    value = @vars[key]
+    return value unless value.nil?
+    super
   end
 end
 
