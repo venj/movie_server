@@ -243,8 +243,8 @@ get "/hash/:file" do
   else
     f = Base64.decode64 params[:file]
   end
-  lx_command = config.lx_command
-  lx_hash_command = config.lx_hash_command
+  lx_command = config.lixian_command
+  lx_hash_command = config.lixian_hash_command
   cd config.public_folder do
     result = %x|#{lx_hash_command} #{torrent_with_pic f}|.split(' ')[0]
     return {hash: result.strip}.to_json
@@ -265,7 +265,7 @@ end
 
 get "/lx/:file/:async" do
   f = slash_process(params[:file])
-  lx_command = config.lx_command
+  lx_command = config.lixian_command
   cd config.public_folder do
     if params[:async] == '1'
       fork {
