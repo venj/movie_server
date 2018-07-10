@@ -126,7 +126,7 @@ set :public_folder, config.public_folder
 
 before do
   content_type 'text/json'
-  protected! if config.basic_auth_enabled?
+  protected! if config.enable_basic_auth?
   halt 401, {status: 'Not allowed.'}.to_json if request.user_agent !~ Regexp.new(config.user_agnet_pattern)
 end
 
