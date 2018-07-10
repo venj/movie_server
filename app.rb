@@ -294,6 +294,18 @@ get "/hash/:file" do
   end
 end
 
+get "/torrent/:hash" do
+  cache_dir = config.torrent_cache
+  cfdl_cmd = config.cfdl_cmd
+  target_file = File.join(cache_dir, "#{hash}.torrent")
+  system("#{cfdl_cmd} -d wget -u http://itorrents.org/torrent/#{hash}.torrent -- -O #{target_file}")
+  if File.exists?(target_file)
+    send_file target_file
+  else
+    status 404
+  end
+end
+
 get "/lx/:file/:async" do
   f = slash_process(params[:file])
   lx_command = config.lx_command
