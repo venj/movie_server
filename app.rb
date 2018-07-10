@@ -212,8 +212,9 @@ end
 get "/torrent/:hash" do
   cache_dir = config.torrent_cache
   cfdl_cmd = config.cfdl_cmd
-  target_file = File.join(cache_dir, "#{hash}.torrent")
-  system("#{cfdl_cmd} -d wget -u http://itorrents.org/torrent/#{hash}.torrent -- -O #{target_file}")
+  info_hash = params[:hash]
+  target_file = File.join(cache_dir, "#{info_hash}.torrent")
+  system("#{cfdl_cmd} -d wget -u https://itorrents.org/torrent/#{info_hash}.torrent -- -O #{target_file}")
   if File.exists?(target_file)
     send_file target_file
   else
