@@ -55,11 +55,7 @@ helpers do
   def torrent_with_pic(pic)
     tr_name = File.join(File.dirname(pic), "#{File.basename(pic, '.jpg').split('_').first}.torrent")
     if File.exists?(tr_name)
-      if is_windows
-        return tr_name
-      else
-        return tr_name.shellescape
-      end
+      return tr_name
     else
       return nil
     end
