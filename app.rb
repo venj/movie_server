@@ -253,7 +253,7 @@ get "/hash/:file" do
     tr = torrent_with_pic f
     meta = BEncode.load_file(tr)
     info_hash = Digest::SHA1.hexdigest(meta["info"].bencode)
-    return {hash: info_hash, file: URI::eocode(tr)}.to_json
+    return {hash: info_hash, file: URI::encode(tr)}.to_json
   end
 end
 
