@@ -2,8 +2,6 @@
 public_folder: "/path/to/movie/files"
 relative_folders:
     - "Office_LAN"
-lixian_command: "/path/to/lixian_cli.py"
-lixian_hash_command: "/path/to/lixian_hash.py --info-hash"
 torrent_cache: "/var/cache"
 cfdl_cmd: "/usr/bin/cfdl"
 max_pic_size: 1024

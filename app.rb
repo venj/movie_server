@@ -11,6 +11,8 @@ require 'sqlite3'
 require 'base64'
 require 'open-uri'
 require 'active_support/all'
+require 'bencode'
+require 'digest/sha1'
 
 include FileUtils
 
@@ -250,11 +252,11 @@ get "/hash/:file" do
   else
     f = Base64.decode64 params[:file]
   end
-  lx_command = config.lixian_command
-  lx_hash_command = config.lixian_hash_command
   cd config.public_folder do
-    result = %x|#{lx_hash_command} #{torrent_with_pic f}|.split(' ')[0]
-    return {hash: result.strip}.to_json
+    tr = torrent_with_pic f
+    meta = BEncode.load_file(tr)
+    info_hash = Digest::SHA1.hexdigest(meta["info"].bencode)
+    return {hash: info_hash}.to_json
   end
 end
 
@@ -267,34 +269,5 @@ get "/torrent/:hash" do
     send_file target_file
   else
     status 404
-  end
-end
-
-get "/lx/:file/:async" do
-  f = slash_process(params[:file])
-  lx_command = config.lixian_command
-  cd config.public_folder do
-    if params[:async] == '1'
-      fork {
-        exec "#{lx_command} add #{torrent_with_pic f}"
-      }
-      return {status: 'done'}.to_json
-    elsif params[:async] == "0"
-      result = %x[#{lx_command} add #{torrent_with_pic f}]
-      if result =~ /completed/
-        status = 'completed'
-      elsif result =~ /waiting/
-        status = 'waiting'
-      elsif result =~ /downloading/
-        status = 'downloading'
-      elsif result =~ /\[0976\]/
-        status = 'Oh no, 0976'
-      elsif result =~ /Verification code required/
-        status = 'Oh no, code'
-      else
-        status = 'failed or unknown'
-      end
-      return {status: status}.to_json
-    end
   end
 end
