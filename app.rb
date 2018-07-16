@@ -13,6 +13,7 @@ require 'open-uri'
 require 'active_support/all'
 require 'bencode'
 require 'digest/sha1'
+require "uri"
 
 include FileUtils
 
@@ -252,7 +253,7 @@ get "/hash/:file" do
     tr = torrent_with_pic f
     meta = BEncode.load_file(tr)
     info_hash = Digest::SHA1.hexdigest(meta["info"].bencode)
-    return {hash: info_hash, file: tr}.to_json
+    return {hash: info_hash, file: URI::eocode(tr)}.to_json
   end
 end
 
