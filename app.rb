@@ -271,7 +271,7 @@ end
 
 get "/kitty/:keyword/:page" do
   keyword = params['keyword']
-  page = params['page']
+  page = params['page'] || 1
   target_file = "/tmp/#{keyword}.html"
   cfdl_cmd = config.cfdl_cmd
   system("#{cfdl_cmd} -d wget -u https://www.torrentkitty.tv/search/#{URI::encode(keyword)}/#{page} -- -O #{target_file}")
