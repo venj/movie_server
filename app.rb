@@ -269,7 +269,7 @@ get "/torrent/:hash" do
   end
 end
 
-get "/kitty/:keyword/:page" do
+get '/kitty/:keyword/?:page?/?' do
   keyword = params['keyword']
   page = params['page'] || 1
   target_file = "/tmp/#{keyword}.html"
