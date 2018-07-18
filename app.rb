@@ -268,3 +268,17 @@ get "/torrent/:hash" do
     status 404
   end
 end
+
+get "/kitty/:keyword/:page" do
+  keyword = params['keyword']
+  page = params['page']
+  target_file = "/tmp/#{keyword}.html"
+  cfdl_cmd = config.cfdl_cmd
+  system("#{cfdl_cmd} -d wget -u https://www.torrentkitty.tv/search/#{URI::encode(keyword)}/#{page} -- -O #{target_file}")
+  if File.exists?(target_file)
+    content_type "text/html"
+    return open(target_file).read
+  else
+    status 404
+  end
+end
