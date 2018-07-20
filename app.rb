@@ -261,9 +261,20 @@ get "/torrent/:hash" do
   cache_dir = config.torrent_cache
   cfdl_cmd = config.cfdl_cmd
   target_file = File.join(cache_dir, "#{hash}.torrent")
-  system("#{cfdl_cmd} -d curl -u http://itorrents.org/torrent/#{hash}.torrent -- -o #{target_file} > /dev/null 2>&1")
   if File.exists?(target_file)
     send_file target_file
+    return
+  end
+  cd cache_dir do
+    system("#{cfdl_cmd} -d curl -u http://itorrents.org/torrent/#{hash}.torrent> /dev/null 2>&1")
+  end
+  if File.exists?(target_file)
+    if File.stat(target_file).size < 512 # Soft limit
+      rm_f(target_file)
+      status 404
+    else
+      send_file target_file
+    end
   else
     status 404
   end
