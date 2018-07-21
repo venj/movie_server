@@ -221,7 +221,7 @@ get "/torrent/:hash" do
     content_type 'application/octet-stream'
     send_file target_file
   else
-    system("#{cfdl_cmd} -d wget -u https://itorrents.org/torrent/#{target_file} -- -O #{target_file}")
+    system("#{cfdl_cmd} -d wget -u https://itorrents.org/torrent/#{info_hash}.torrent -- -O #{target_file}")
     if File.exists?(target_file)
       if File.stat(target_file).size < 512
         status 404
