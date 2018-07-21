@@ -214,6 +214,10 @@ get "/torrent/:hash" do
   info_hash = params[:hash]
   target_file = File.join(cache_dir, "#{info_hash}.torrent")
   if File.exists?(target_file)
+    if File.stat(target_file).size < 512
+      status 404
+      return
+    end
     content_type 'application/octet-stream'
     send_file target_file
   else
