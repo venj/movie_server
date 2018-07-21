@@ -213,25 +213,15 @@ get "/torrent/:hash" do
   cfdl_cmd = config.cfdl_cmd
   info_hash = params[:hash].downcase
   target_file = File.join(cache_dir, "#{info_hash}.torrent")
-  if File.exists?(target_file)
-    if File.stat(target_file).size < 512
-      status 404
-      return
-    end
+  if File.exists?(target_file) && File.stat(target_file).size < 512
+    rm_f(target_file)
+  end
+  system("#{cfdl_cmd} -d wget -u https://itorrents.org/torrent/#{info_hash}.torrent -- -O #{target_file}")
+  if File.stat(target_file).size < 512
+    status 404
+  else
     content_type 'application/octet-stream'
     send_file target_file
-  else
-    system("#{cfdl_cmd} -d wget -u https://itorrents.org/torrent/#{info_hash}.torrent -- -O #{target_file}")
-    if File.exists?(target_file)
-      if File.stat(target_file).size < 512
-        status 404
-        return
-      end
-      content_type 'application/octet-stream'
-      send_file target_file
-    else
-      status 404
-    end
   end
 end
 
