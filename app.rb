@@ -216,7 +216,10 @@ get "/torrent/:hash" do
   if File.exists?(target_file) && File.stat(target_file).size < 512
     rm_f(target_file)
   end
-  system("#{cfdl_cmd} -d wget -u https://itorrents.org/torrent/#{info_hash}.torrent -- -O #{target_file}")
+  content = `#{cfdl_cmd} https://itorrents.org/torrent/#{info_hash}.torrent`
+  open(target_file, 'wb+') do |f|
+    f.write(content)
+  end
   if File.stat(target_file).size < 512
     status 404
   else
@@ -255,32 +258,23 @@ get "/hash/:file" do
   end
 end
 
-get "/torrent/:hash" do
-  cache_dir = config.torrent_cache
-  cfdl_cmd = config.cfdl_cmd
-  target_file = File.join(cache_dir, "#{hash}.torrent")
-  system("#{cfdl_cmd} -d wget -u http://itorrents.org/torrent/#{hash}.torrent -- -O #{target_file}")
-  if File.exists?(target_file)
-    if File.stat(target_file).size < 512 # Soft limit
-      rm_f(target_file)
-      status 404
-    else
-      send_file target_file
-    end
-  else
-    status 404
-  end
-end
-
 get '/kitty/:keyword/?:page?/?' do
   keyword = params['keyword']
   page = params['page'] || 1
   target_file = "/tmp/#{keyword}.html"
   cfdl_cmd = config.cfdl_cmd
-  system("#{cfdl_cmd} -d wget -u https://www.torrentkitty.tv/search/#{URI::encode(keyword)}/#{page} -- -O #{target_file}")
+  content = `#{cfdl_cmd} https://www.torrentkitty.tv/search/#{URI::encode(keyword)}/#{page}`
+  open(target_file, 'w+') do |f|
+    f.write(content)
+  end
   if File.exists?(target_file)
-    content_type "text/html"
-    return open(target_file).read
+    if File.stat(target_file).size < 10 # Soft limit
+      rm_f(target_file)
+      status 404
+    else
+      content_type "text/html"
+      return open(target_file).read
+    end
   else
     status 404
   end
