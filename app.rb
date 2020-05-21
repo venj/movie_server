@@ -216,10 +216,7 @@ get "/torrent/:hash" do
   if File.exists?(target_file) && File.stat(target_file).size < 512
     rm_f(target_file)
   end
-  content = `#{cfdl_cmd} https://itorrents.org/torrent/#{info_hash}.torrent`
-  open(target_file, 'wb+') do |f|
-    f.write(content)
-  end
+  content = `#{cfdl_cmd} https://itorrents.org/torrent/#{info_hash}.torrent #{target_file}`
   if File.stat(target_file).size < 512
     status 404
   else
