@@ -217,7 +217,8 @@ get "/torrent/:hash" do
     rm_f(target_file)
   end
   content = `#{cfdl_cmd} https://itorrents.org/torrent/#{info_hash}.torrent #{target_file}`
-  if File.stat(target_file).size < 512
+  first_bytes = open(target_file) { |fh| fh.read(2) }
+  if File.stat(target_file).size < 512 || first_bytes == '<!' # Plain old html!
     status 404
   else
     content_type 'application/octet-stream'
