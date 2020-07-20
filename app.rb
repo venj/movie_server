@@ -124,6 +124,10 @@ end
 
 set :public_folder, config.public_folder
 
+configure do
+  enable :cross_origin
+end
+
 before do
   content_type 'text/json'
   response.headers['Access-Control-Allow-Origin'] = '*'
