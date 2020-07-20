@@ -132,13 +132,12 @@ before do
   content_type 'text/json'
   response.headers['Access-Control-Allow-Origin'] = '*'
   protected! if config.enable_basic_auth?
-  return if request.request_method == 'OPTIONS'
-  halt 401, {status: 'Not allowed.'}.to_json if request.user_agent !~ Regexp.new(config.user_agnet_pattern)
+  halt 401, {status: 'Not allowed.'}.to_json if request.request_method != 'OPTIONS' && request.user_agent !~ Regexp.new(config.user_agnet_pattern)
 end
 
-options "*" do
+options '*' do
   response.headers["Allow"] = "GET, PUT, POST, DELETE, OPTIONS"
-  response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, Accept, X-User-Email, X-Auth-Token"
+  response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, Accept, X-User-Email, X-Auth-Token, User-Agent"
   response.headers["Access-Control-Allow-Origin"] = "*"
   200
 end
