@@ -132,7 +132,7 @@ before do
   content_type 'text/json'
   response.headers['Access-Control-Allow-Origin'] = '*'
   protected! if config.enable_basic_auth?
-  return 200 if request.request_method == 'OPTION'
+  return 200 if request.request_method == 'OPTIONS'
   halt 401, {status: 'Not allowed.'}.to_json if request.user_agent !~ Regexp.new(config.user_agnet_pattern)
 end
 
